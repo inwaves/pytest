@@ -801,7 +801,7 @@ def test_resource_warning(pytester: Pytester, monkeypatch: pytest.MonkeyPatch) -
 
         def test_resource_warning(tmp_path):
             p = tmp_path.joinpath("foo.txt")
-            p.write_text("hello")
+            p.write_text("hello", encoding="utf-8")
             open_file(p)
         """
     )

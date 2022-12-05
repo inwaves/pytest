@@ -374,8 +374,13 @@ class LocalPath:
 
     def read(self, mode="r"):
         """Read and return a bytestring from reading the path."""
-        with self.open(mode) as f:
-            return f.read()
+        if "b" in mode:
+            f = self.open(mode)
+        else:
+            f = self.open(mode, encoding="utf-8")
+        out = f.read()
+        f.close()
+        return out
 
     def readlines(self, cr=1):
         """Read and return a list of lines from the path. if cr is False, the
@@ -386,7 +391,7 @@ class LocalPath:
             content = self.read(mode)
             return content.split("\n")
         else:
-            f = self.open(mode)
+            f = self.open(mode, encoding="utf-8")
             try:
                 return f.readlines()
             finally:
@@ -909,18 +914,20 @@ class LocalPath:
         """Write data into path.   If ensure is True create
         missing parent directories.
         """
+        encoding = "utf-8"
         if ensure:
             self.dirpath().ensure(dir=1)
         if "b" in mode:
             if not isinstance(data, bytes):
                 raise ValueError("can only process bytes")
+            encoding = "N/A"  # Can't specify encoding for binary mode.
         else:
             if not isinstance(data, str):
                 if not isinstance(data, bytes):
                     data = str(data)
                 else:
                     data = data.decode(sys.getdefaultencoding())
-        f = self.open(mode)
+        f = self.open(mode) if encoding == "N/A" else self.open(mode, encoding=encoding)
         try:
             f.write(data)
         finally:
@@ -953,7 +960,7 @@ class LocalPath:
         else:
             p.dirpath()._ensuredirs()
             if not p.check(file=1):
-                p.open("w").close()
+                p.open("w", encoding="utf-8").close()
             return p
 
     @overload
@@ -1305,7 +1312,7 @@ class LocalPath:
                 fd = error.checked_call(
                     os.open, str(lockfile), os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o644
                 )
-                with os.fdopen(fd, "w") as f:
+                with os.fdopen(fd, "w", encoding="utf-8") as f:
                     f.write(str(mypid))
             return lockfile
 

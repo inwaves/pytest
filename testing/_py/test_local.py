@@ -692,7 +692,7 @@ class TestLocalPath(CommonFSTests):
 
     def test_open_and_ensure(self, path1):
         p = path1.join("sub1", "sub2", "file")
-        with p.open("w", ensure=1) as f:
+        with p.open("w", ensure=1, encoding="utf-8") as f:
             f.write("hello")
         assert p.read() == "hello"
 

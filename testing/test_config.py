@@ -88,7 +88,8 @@ class TestParseIni:
                 [pytest]
                 addopts = --verbose
                 """
-            )
+            ),
+            encoding="utf-8",
         )
         config = pytester.parseconfig(tmp_path)
         assert config.option.color == "no"
@@ -128,7 +129,8 @@ class TestParseIni:
         """.format(
                     section=section
                 )
-            )
+            ),
+            encoding="utf-8",
         )
         config = pytester.parseconfig()
         assert config.getini("minversion") == "3.36"
@@ -151,7 +153,8 @@ class TestParseIni:
             [pytest]
             minversion = 2.0
         """
-            )
+            ),
+            encoding="utf-8",
         )
         pytester.path.joinpath("pytest.ini").write_text(
             textwrap.dedent(
@@ -159,13 +162,16 @@ class TestParseIni:
             [pytest]
             minversion = 1.5
         """
-            )
+            ),
+            encoding="utf-8",
         )
         config = pytester.parseconfigure(sub)
         assert config.getini("minversion") == "2.0"
 
     def test_ini_parse_error(self, pytester: Pytester) -> None:
-        pytester.path.joinpath("pytest.ini").write_text("addopts = -x")
+        pytester.path.joinpath("pytest.ini").write_text(
+            "addopts = -x", encoding="utf-8"
+        )
         result = pytester.runpytest()
         assert result.ret != 0
         result.stderr.fnmatch_lines("ERROR: *pytest.ini:1: no section header defined")
@@ -610,7 +616,7 @@ class TestConfigAPI:
     def test_getconftest_pathlist(self, pytester: Pytester, tmp_path: Path) -> None:
         somepath = tmp_path.joinpath("x", "y", "z")
         p = tmp_path.joinpath("conftest.py")
-        p.write_text(f"mylist = {['.', str(somepath)]}")
+        p.write_text(f"mylist = {['.', str(somepath)]}", encoding="utf-8")
         config = pytester.parseconfigure(p)
         assert (
             config._getconftest_pathlist("notexist", path=tmp_path, rootpath=tmp_path)
@@ -886,7 +892,8 @@ class TestConfigFromdictargs:
                 [pytest]
                 name = value
                 """
-            )
+            ),
+            encoding="utf-8",
         )
 
         inifilename = "../../foo/bar.ini"
@@ -903,7 +910,8 @@ class TestConfigFromdictargs:
                 name = wrong-value
                 should_not_be_set = true
                 """
-            )
+            ),
+            encoding="utf-8",
         )
         with MonkeyPatch.context() as mp:
             mp.chdir(cwd)
@@ -1518,7 +1526,8 @@ class TestOverrideIniArgs:
             custom = 1.0""".format(
                     section=section
                 )
-            )
+            ),
+            encoding="utf-8",
         )
         pytester.makeconftest(
             """
